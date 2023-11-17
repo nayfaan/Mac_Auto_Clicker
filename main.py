@@ -72,19 +72,16 @@ def target_window_into_focus(target_window):
         except:
             pass
     if not target_window == "(None)":
+        system(
+            '/usr/bin/osascript -e \'tell app "Finder" to set frontmost of process "'
+            + target_window
+            + "\" to true'"
+        )
         while (
             not target_window
             == NSWorkspace.sharedWorkspace().activeApplication()["NSApplicationName"]
         ):
-            print(
-                target_window,
-                NSWorkspace.sharedWorkspace().activeApplication()["NSApplicationName"],
-            )
-            system(
-                '/usr/bin/osascript -e \'tell app "Finder" to set frontmost of process "'
-                + target_window
-                + "\" to true'"
-            )
+            pass
 
 
 def click_listener(x, y, button, pressed, CoordFrameList):
@@ -247,8 +244,12 @@ def click(coordinates_numbers, mean=[None, None], sd=[None, None]):
 
 
 def disable_all_inputs():
-    start_button.configure(state="disabled")
-    stop_button.configure(state="active")
+    print(start_button.cget("state"))
+    while not start_button.cget("state") == "disabled":
+        start_button.configure(state="disabled")
+    print(start_button.cget("state"))
+    while not stop_button.cget("state") == "active":
+        stop_button.configure(state="active")
     add_coordinate.configure(state="disabled")
     del_coordinate.configure(state="disabled")
 
@@ -349,6 +350,13 @@ def start_btn_press():
     stop_btn_press()
 
 
+def press_listener(key, stop):
+    print(key)
+    if key == kb.Key.esc:
+        stop[0] = True
+        return False
+
+
 def click_loop(
     coordinates_numbers,
     coord_mean,
@@ -362,9 +370,9 @@ def click_loop(
     mouse_control = mouse.Controller()
 
     global stop
-    stop = False
+    stop = [False]
     global listener
-    listener = kb.Listener(on_press=press_listener)
+    listener = kb.Listener(on_press=lambda key: press_listener(key, stop))
     listener.start()
 
     global target_window_name
@@ -372,7 +380,7 @@ def click_loop(
 
     mouse_control.position = (coordinates_numbers[0][0], coordinates_numbers[0][1])
 
-    while not stop:
+    while not stop[0]:
         print(stop)
         click(coordinates_numbers, coord_mean, coord_sd)
         if time_numbers[0] == time_numbers[1]:
@@ -525,12 +533,6 @@ def init():
     stop_button.grid(row=0, column=1)
 
     control_frame.pack()
-
-
-def press_listener(key):
-    if key == kb.Key.esc:
-        stop = True
-        return False
 
 
 def run():
