@@ -5,6 +5,8 @@ __commit.py
 __`git commit.command
 __`Initiate venv.command
 __`Start.command
+__`test.command
+test.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
