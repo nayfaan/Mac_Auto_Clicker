@@ -72,11 +72,19 @@ def target_window_into_focus(target_window):
         except:
             pass
     if not target_window == "(None)":
-        system(
-            '/usr/bin/osascript -e \'tell app "Finder" to set frontmost of process "'
-            + target_window
-            + "\" to true'"
-        )
+        while (
+            not target_window
+            == NSWorkspace.sharedWorkspace().activeApplication()["NSApplicationName"]
+        ):
+            print(
+                target_window,
+                NSWorkspace.sharedWorkspace().activeApplication()["NSApplicationName"],
+            )
+            system(
+                '/usr/bin/osascript -e \'tell app "Finder" to set frontmost of process "'
+                + target_window
+                + "\" to true'"
+            )
 
 
 def click_listener(x, y, button, pressed, CoordFrameList):
